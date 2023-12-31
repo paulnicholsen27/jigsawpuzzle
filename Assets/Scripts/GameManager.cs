@@ -14,8 +14,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject playAgainButton;
 
     [Header("Game Elements")]
-    [Range(2, 8)]
-    [SerializeField] private int difficulty = 4;
+    [Range(2, 10)]
+    [SerializeField] private int difficulty = 10;
     [SerializeField] private Transform gameHolder;
     [SerializeField] private Transform piecePrefab;
     [SerializeField] private AudioSource clickSound;
@@ -40,9 +40,6 @@ public class GameManager : MonoBehaviour
             Button button = image.GetComponent<Button>();
             button.onClick.AddListener(delegate { StartGame(texture); });
             if (index > levelsBeaten) {
-                //darken image
-
-                //disable button
                 button.interactable = false;
             }
             index++;
@@ -114,7 +111,7 @@ public class GameManager : MonoBehaviour
         );
 
         if (Vector2.Distance(draggingPiece.localPosition, targetPosition) < (width / 4)) {
-            draggingPiece.localPosition = targetPosition;
+            draggingPiece.localPosition = new Vector3(targetPosition.x, targetPosition.y, 0);
             draggingPiece.GetComponent<BoxCollider2D>().enabled = false;
             piecesCorrect++;
             clickSound.Play();
