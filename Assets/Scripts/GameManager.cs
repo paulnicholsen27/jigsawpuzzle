@@ -14,10 +14,11 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject playAgainButton;
 
     [Header("Game Elements")]
-    [Range(2, 6)]
+    [Range(2, 8)]
     [SerializeField] private int difficulty = 4;
     [SerializeField] private Transform gameHolder;
     [SerializeField] private Transform piecePrefab;
+    [SerializeField] private AudioSource clickSound;
 
     private List<Transform> pieces;
     private Vector2Int dimensions;
@@ -26,14 +27,25 @@ public class GameManager : MonoBehaviour
     private Transform draggingPiece = null;
 
     private int piecesCorrect;
+    private int levelsBeaten = 0;
 
     void Start()
     {
+        // clickSound = GetComponent<AudioSource>();
+        int index = 0;
         foreach (Texture2D texture in imageTextures)
         {
             Image image = Instantiate(levelSelectPrefab, levelSelectPanel);
             image.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
-            image.GetComponent<Button>().onClick.AddListener(delegate { StartGame(texture); });
+            Button button = image.GetComponent<Button>();
+            button.onClick.AddListener(delegate { StartGame(texture); });
+            if (index > levelsBeaten) {
+                //darken image
+
+                //disable button
+                button.interactable = false;
+            }
+            index++;
         }
     }
 
@@ -54,9 +66,6 @@ public class GameManager : MonoBehaviour
                 draggingPiece.position = new Vector3(draggingPiece.position.x,
                                                      draggingPiece.position.y,
                                                      -2);
-                // lastMovedPiece = draggingPiece;
-                // last
-                // offset = draggingPiece.position - Camera.main.ScreenToWorldPoint(Input.mousePosition);
             }
         }
 
@@ -64,7 +73,6 @@ public class GameManager : MonoBehaviour
         {
             Vector3 newPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             newPosition.z = draggingPiece.position.z;
-            // newPosition += offset;
             draggingPiece.position = newPosition;
         }
 
@@ -109,6 +117,7 @@ public class GameManager : MonoBehaviour
             draggingPiece.localPosition = targetPosition;
             draggingPiece.GetComponent<BoxCollider2D>().enabled = false;
             piecesCorrect++;
+            clickSound.Play();
             if (piecesCorrect == pieces.Count) {
                 playAgainButton.SetActive(true);
             }
@@ -216,9 +225,9 @@ public class GameManager : MonoBehaviour
         foreach (Transform piece in pieces) {
             Destroy(piece.gameObject);
         }
-            pieces.Clear();
-            gameHolder.GetComponent<LineRenderer>().enabled = false;
-            playAgainButton.SetActive(false);
-            levelSelectPanel.gameObject.SetActive(true);
+        pieces.Clear();
+        gameHolder.GetComponent<LineRenderer>().enabled = false;
+        playAgainButton.SetActive(false);
+        levelSelectPanel.gameObject.SetActive(true);
     }
 }
