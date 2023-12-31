@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Transform levelSelectPanel;
     [SerializeField] private List<Texture2D> imageTextures;
     [SerializeField] private Image levelSelectPrefab;
+    [SerializeField] private GameObject playAgainButton;
 
     [Header("Game Elements")]
     [Range(2, 6)]
@@ -23,7 +24,8 @@ public class GameManager : MonoBehaviour
     private float width;
     private float height;
     private Transform draggingPiece = null;
-    // private Vector3 offset;
+
+    private int piecesCorrect;
 
     void Start()
     {
@@ -68,9 +70,11 @@ public class GameManager : MonoBehaviour
 
         if (draggingPiece && Input.GetMouseButtonUp(0))
         {
+            SnapAndDisableIfCorrect();
             draggingPiece = null;
         }
     }
+
     public void StartGame(Texture2D jigsawTexture)
     {
         // hide UI
@@ -86,9 +90,30 @@ public class GameManager : MonoBehaviour
         CreateJigsawPieces(jigsawTexture);
         Scatter();
         UpdateBorder();
+        piecesCorrect = 0;
 
     }
 
+    private void SnapAndDisableIfCorrect() {
+        int pieceIndex = pieces.IndexOf(draggingPiece);
+
+        int col = pieceIndex % dimensions.x;
+        int row = pieceIndex / dimensions.x;
+
+        Vector2 targetPosition = new(
+            (-width * dimensions.x / 2) + (width * col) + (width / 2),
+            (-height * dimensions.y / 2) + (height * row) + (height / 2)
+        );
+
+        if (Vector2.Distance(draggingPiece.localPosition, targetPosition) < (width / 4)) {
+            draggingPiece.localPosition = targetPosition;
+            draggingPiece.GetComponent<BoxCollider2D>().enabled = false;
+            piecesCorrect++;
+            if (piecesCorrect == pieces.Count) {
+                playAgainButton.SetActive(true);
+            }
+        }
+    }
     Vector2Int GetDimensions(Texture2D jigsawTexture, int difficulty)
     {
         Vector2Int dimensions = Vector2Int.zero;
@@ -185,5 +210,15 @@ public class GameManager : MonoBehaviour
         lineRenderer.endWidth = 0.1f;
 
         lineRenderer.enabled = true;
+    }
+
+    public void RestartGame() {
+        foreach (Transform piece in pieces) {
+            Destroy(piece.gameObject);
+        }
+            pieces.Clear();
+            gameHolder.GetComponent<LineRenderer>().enabled = false;
+            playAgainButton.SetActive(false);
+            levelSelectPanel.gameObject.SetActive(true);
     }
 }
