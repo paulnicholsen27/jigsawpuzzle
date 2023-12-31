@@ -23,6 +23,8 @@ public class GameManager : MonoBehaviour
     private float width;
     private float height;
     private Transform draggingPiece = null;
+    // private Vector3 offset;
+
     void Start()
     {
         foreach (Texture2D texture in imageTextures)
@@ -35,12 +37,24 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetMouseButton(0))
+        if (Input.GetMouseButton(0) && !draggingPiece)
         {
             RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
             if (hit)
             {
                 draggingPiece = hit.transform;
+                foreach (Transform piece in pieces) {
+                    float x = piece.position.x;
+                    float y = piece.position.y;
+                    float z = -1;
+                    piece.position = new Vector3(x, y, z);
+                }
+                draggingPiece.position = new Vector3(draggingPiece.position.x,
+                                                     draggingPiece.position.y,
+                                                     -2);
+                // lastMovedPiece = draggingPiece;
+                // last
+                // offset = draggingPiece.position - Camera.main.ScreenToWorldPoint(Input.mousePosition);
             }
         }
 
@@ -48,6 +62,7 @@ public class GameManager : MonoBehaviour
         {
             Vector3 newPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             newPosition.z = draggingPiece.position.z;
+            // newPosition += offset;
             draggingPiece.position = newPosition;
         }
 
