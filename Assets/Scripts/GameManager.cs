@@ -40,6 +40,7 @@ public class GameManager : MonoBehaviour
             Button button = image.GetComponent<Button>();
             button.onClick.AddListener(delegate { StartGame(texture); });
             if (index > levelsBeaten) {
+                image.color = new Color32(255, 255, 255, 90);
                 button.interactable = false;
             }
             index++;
@@ -117,6 +118,7 @@ public class GameManager : MonoBehaviour
             clickSound.Play();
             if (piecesCorrect == pieces.Count) {
                 playAgainButton.SetActive(true);
+                levelsBeaten++;
             }
         }
     }
